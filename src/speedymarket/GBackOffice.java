@@ -1,0 +1,410 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package speedymarket;
+
+import com.j256.ormlite.stmt.QueryBuilder;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+
+/**
+ *
+ * @author 10075
+ */
+public class GBackOffice extends javax.swing.JFrame {
+
+    private DefaultComboBoxModel categorieComboModel;
+    private DefaultComboBoxModel sousCategorieComboModel;
+    private DefaultTableModel modelTable;
+
+    /**
+     * Creates new form GBackOffice2
+     */
+    public GBackOffice() throws SQLException {
+        initComponents();
+        //icone de la fenetre
+        this.setIconImage(new ImageIcon(getClass().getResource("img/iconL.png")).getImage());
+        SingletonData.getSingletonData();
+        modelTable = (DefaultTableModel) jTableArticles.getModel();
+        categorieComboModel = (DefaultComboBoxModel) jComboBoxCategorie.getModel();
+        sousCategorieComboModel = (DefaultComboBoxModel) jComboBoxSousCategorie.getModel();
+        majCombo();
+        afficherTous();
+    }
+/**
+ * Ajouter un article dans le tableau
+ * @param article
+ * @throws SQLException 
+ */
+    private void ajoutArticle(Article article) throws SQLException {
+        Vector donnees = new Vector();
+        donnees.addElement(article.getCode().toString());
+        donnees.addElement(article.getLibelle());
+        article.setMarque(SingletonData.getSingletonData().getMarqueDAO().queryForId(article.getMarque().getCode()));
+        donnees.addElement(article.getMarque().getLibelle());
+        donnees.addElement(article.getDescriptionCourte());
+        donnees.addElement(article.getQuantite());
+        donnees.addElement(article.getPrixHT());
+        article.setTVA(SingletonData.getSingletonData().getTvaDAO().queryForId(article.getTVA().getCode()));
+        donnees.addElement(article.getTVA().getTaux());
+        donnees.addElement(article.isVisibilite());
+        modelTable.addRow(donnees);
+    }
+
+    private void majCombo() {
+
+        categorieComboModel.removeAllElements();
+
+        try {
+
+            List<Categorie> listCategorie = SingletonData.getSingletonData().getCategorieDAO().queryBuilder().where()
+                    .isNull(Categorie.CATEGORIEPARENTE_FIELD_NAME).query();
+
+            for (Categorie categorie : listCategorie) {
+                categorieComboModel.addElement(categorie);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(GDialogArticle.class.getName()).log(Level.SEVERE, null, ex);
+        }
+     }
+
+    /**
+     * ouvre la fenetre de modification
+     */
+    private void boiteModifier() {
+        if (jTableArticles.getSelectedRow()==-1){
+            JOptionPane.showMessageDialog(this, "Vous devez sélectionner un article");
+            return;
+        }
+        try {
+            Integer id = Integer.parseInt(modelTable.getValueAt(jTableArticles.getSelectedRow(), 0).toString());
+            GDialogArticle dialArticle = new GDialogArticle(this, true, id);
+            dialArticle.setVisible(true);
+            System.out.println(dialArticle.getReturnStatus());
+        } catch (SQLException ex) {
+            Logger.getLogger(GBackOffice.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+/**
+ * Affiche tous les articles toutes categories confondues
+ */
+    private void afficherTous() {
+        try {
+            modelTable.setRowCount(0);
+            jComboBoxSousCategorie.setSelectedIndex(-1);
+            jComboBoxCategorie.setSelectedIndex(-1);
+            for (Article article : SingletonData.getSingletonData().getArticleDAO()) {
+                ajoutArticle(article);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(GBackOffice.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    /**
+     * Permet ajouter dans le tableau tous les articles d'une categorie
+     * @param categorie 
+     */
+    private void ajoutCategorie(Categorie categorie) {
+        Article artTmp = new Article();
+        artTmp.setCategorie(categorie);
+        List<Article> listeArticle;
+        try {
+            listeArticle = SingletonData.getSingletonData().getArticleDAO().queryForMatching(artTmp);
+            for (Article article : listeArticle) {
+                ajoutArticle(article);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(GBackOffice.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jComboBoxCategorie = new javax.swing.JComboBox();
+        jComboBoxSousCategorie = new javax.swing.JComboBox();
+        jScrollPaneTable = new javax.swing.JScrollPane();
+        jTableArticles = new javax.swing.JTable();
+        jButtonAjouter = new javax.swing.JButton();
+        jButtonModifier = new javax.swing.JButton();
+        jLabelTitre = new javax.swing.JLabel();
+        jLabelImage = new javax.swing.JLabel();
+        jButtonAfficherTous = new javax.swing.JButton();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jComboBoxCategorie.setModel(new DefaultComboBoxModel());
+        jComboBoxCategorie.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                jComboBoxCategorieItemStateChanged(evt);
+            }
+        });
+        jComboBoxCategorie.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBoxCategorieActionPerformed(evt);
+            }
+        });
+
+        jComboBoxSousCategorie.setModel(new DefaultComboBoxModel());
+        jComboBoxSousCategorie.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                jComboBoxSousCategorieItemStateChanged(evt);
+            }
+        });
+
+        jTableArticles.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Code", "Libelle", "Marque", "Description courte", "Quantité", "Prix Ht", "Taux Tva", "Visibilité"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.Double.class, java.lang.Double.class, java.lang.Boolean.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jTableArticles.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jTableArticlesMouseClicked(evt);
+            }
+        });
+        jScrollPaneTable.setViewportView(jTableArticles);
+
+        jButtonAjouter.setText("Ajouter un article");
+        jButtonAjouter.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonAjouterActionPerformed(evt);
+            }
+        });
+
+        jButtonModifier.setText("Modifier l'article selectionné");
+        jButtonModifier.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonModifierActionPerformed(evt);
+            }
+        });
+
+        jLabelTitre.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        jLabelTitre.setText("Back Office Speedy Market");
+
+        jLabelImage.setIcon(new javax.swing.ImageIcon(getClass().getResource("/speedymarket/img/logoSM.png"))); // NOI18N
+
+        jButtonAfficherTous.setText("Afficher tous les articles");
+        jButtonAfficherTous.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonAfficherTousActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPaneTable)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jButtonAjouter)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jButtonModifier))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabelImage)
+                                .addGap(18, 18, 18)
+                                .addComponent(jLabelTitre)))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jComboBoxCategorie, javax.swing.GroupLayout.PREFERRED_SIZE, 301, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jComboBoxSousCategorie, javax.swing.GroupLayout.PREFERRED_SIZE, 591, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonAfficherTous, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabelTitre)
+                    .addComponent(jLabelImage))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jComboBoxCategorie, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jComboBoxSousCategorie, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButtonAfficherTous))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPaneTable, javax.swing.GroupLayout.DEFAULT_SIZE, 500, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButtonAjouter)
+                    .addComponent(jButtonModifier))
+                .addContainerGap())
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void jButtonAjouterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAjouterActionPerformed
+        try {
+            GDialogArticle dialArticle = new GDialogArticle(this, true, null);
+            dialArticle.setVisible(true);
+            System.out.println(dialArticle.getReturnStatus());
+        } catch (SQLException ex) {
+            Logger.getLogger(GBackOffice.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }//GEN-LAST:event_jButtonAjouterActionPerformed
+
+    private void jComboBoxCategorieItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jComboBoxCategorieItemStateChanged
+
+
+    }//GEN-LAST:event_jComboBoxCategorieItemStateChanged
+
+    private void jComboBoxSousCategorieItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jComboBoxSousCategorieItemStateChanged
+        Categorie categorie = (Categorie) sousCategorieComboModel.getSelectedItem();
+        if (categorie == null) {
+            return;
+        }
+        modelTable.setRowCount(0);
+
+        ajoutCategorie(categorie);
+
+    }//GEN-LAST:event_jComboBoxSousCategorieItemStateChanged
+/**
+ *      mise a jour de la comboBox sous categorie au changement de categorie
+ * 
+ * @param evt 
+ */
+    private void jComboBoxCategorieActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxCategorieActionPerformed
+         // on recupere l'item de la categorie selectionnée
+        Categorie parente = (Categorie) categorieComboModel.getSelectedItem();
+        //si aucune categorie n'est selectionnée dans le cas ou on affiche tous les articles
+        if (parente == null) {
+            sousCategorieComboModel.removeAllElements();
+            return;
+        }
+        sousCategorieComboModel.removeAllElements();
+        List<Categorie> listCategorie;
+        try {
+            //on prepare la requete de recuperation des sous categories
+            QueryBuilder qb = SingletonData.getSingletonData().getCategorieDAO().queryBuilder();
+            qb.where().eq(Categorie.CATEGORIEPARENTE_FIELD_NAME, parente.getCode());
+            qb.orderBy(Categorie.LIBELLE_CATEGORIE_FIELD_NAME, true);
+            //on execute la requete
+            listCategorie = qb.query();
+            //on rempli la comboBox sous categorie
+            for (Categorie categorie : listCategorie) {
+                sousCategorieComboModel.addElement(categorie);
+            }
+            // on selectionne aucune sous categorie
+            jComboBoxSousCategorie.setSelectedIndex(-1);
+            //on vide les lignes de la table
+            modelTable.setRowCount(0);
+
+            ajoutCategorie(parente);
+            for (Categorie categorie : listCategorie) {
+                ajoutCategorie(categorie);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(GDialogArticle.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jComboBoxCategorieActionPerformed
+
+    private void jTableArticlesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTableArticlesMouseClicked
+
+        if (evt.getClickCount() == 2) {
+            boiteModifier();
+        }
+    }//GEN-LAST:event_jTableArticlesMouseClicked
+
+    private void jButtonModifierActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonModifierActionPerformed
+        boiteModifier();
+    }//GEN-LAST:event_jButtonModifierActionPerformed
+
+    private void jButtonAfficherTousActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAfficherTousActionPerformed
+        afficherTous();
+    }//GEN-LAST:event_jButtonAfficherTousActionPerformed
+    
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(GBackOffice.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(GBackOffice.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(GBackOffice.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(GBackOffice.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                try {
+                    new GBackOffice().setVisible(true);
+                } catch (SQLException ex) {
+                    Logger.getLogger(GBackOffice.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButtonAfficherTous;
+    private javax.swing.JButton jButtonAjouter;
+    private javax.swing.JButton jButtonModifier;
+    private javax.swing.JComboBox jComboBoxCategorie;
+    private javax.swing.JComboBox jComboBoxSousCategorie;
+    private javax.swing.JLabel jLabelImage;
+    private javax.swing.JLabel jLabelTitre;
+    private javax.swing.JScrollPane jScrollPaneTable;
+    private javax.swing.JTable jTableArticles;
+    // End of variables declaration//GEN-END:variables
+}

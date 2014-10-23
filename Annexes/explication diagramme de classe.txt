@@ -1,0 +1,5 @@
+SingletonData = connexion bdd (garageDAO dans les vehicules)
+
+ArticleManager = gestionnaire de requete pour les articles utilise SingletonData pour la connexion
+
+EntityComboModel = model de comboBox defini pour le lien avec les ID des tables
